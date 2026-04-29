@@ -39,4 +39,27 @@ async function analyzeMood(text) {
   return JSON.parse(raw);
 }
 
-module.exports = { analyzeMood };
+const REFINE_TAG_PROMPT = `You are a music tag selector. Given a mood and a genre, return ONLY a raw JSON object — no markdown, no code fences, no explanation.
+
+Return: { "lastfm_tag": "<best single Last.fm tag for this mood and genre combination>" }
+
+Pick a tag that is likely to exist as a real Last.fm tag (e.g. "jazz blues", "sad indie", "classical ambient").`;
+
+async function refineTag(mood, genre) {
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const message = await client.messages.create({
+    model: MODEL,
+    max_tokens: 256,
+    system: REFINE_TAG_PROMPT,
+    messages: [{ role: 'user', content: `mood: ${mood}, genre: ${genre}` }],
+  });
+  const raw = message?.content?.[0]?.text;
+  if (!raw) throw new Error('Unexpected response shape from Claude API');
+  const parsed = JSON.parse(raw);
+  if (!parsed.lastfm_tag || typeof parsed.lastfm_tag !== 'string' || !parsed.lastfm_tag.trim()) {
+    throw new Error('Claude returned an invalid or empty lastfm_tag');
+  }
+  return parsed;
+}
+
+module.exports = { analyzeMood, refineTag };

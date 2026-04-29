@@ -3,7 +3,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 
 process.env.ANTHROPIC_API_KEY = 'test-key';
 
-const { analyzeMood } = require('../../src/services/claude');
+const { analyzeMood, refineTag } = require('../../src/services/claude');
 
 const CLEAR_MOOD_RESPONSE = {
   content: [{
@@ -84,4 +84,47 @@ describe('analyzeMood', () => {
     await expect(analyzeMood('hello')).rejects.toThrow('Unexpected response shape');
   });
 
+});
+
+const REFINE_TAG_RESPONSE = {
+  content: [{ text: JSON.stringify({ lastfm_tag: 'jazz blues' }) }]
+};
+
+describe('refineTag', () => {
+  it('returns a lastfm_tag for mood + genre combination', async () => {
+    Anthropic.mockImplementation(() => ({
+      messages: { create: jest.fn().mockResolvedValue(REFINE_TAG_RESPONSE) }
+    }));
+    const result = await refineTag('melancholic', 'jazz');
+    expect(typeof result.lastfm_tag).toBe('string');
+    expect(result.lastfm_tag.length).toBeGreaterThan(0);
+  });
+
+  it('throws when Claude returns malformed JSON', async () => {
+    Anthropic.mockImplementation(() => ({
+      messages: { create: jest.fn().mockResolvedValue({ content: [{ text: 'not json' }] }) }
+    }));
+    await expect(refineTag('sad', 'jazz')).rejects.toThrow();
+  });
+
+  it('throws on empty content response', async () => {
+    Anthropic.mockImplementation(() => ({
+      messages: { create: jest.fn().mockResolvedValue({ content: [] }) }
+    }));
+    await expect(refineTag('sad', 'jazz')).rejects.toThrow('Unexpected response shape');
+  });
+
+  it('throws when Anthropic SDK rejects', async () => {
+    Anthropic.mockImplementation(() => ({
+      messages: { create: jest.fn().mockRejectedValue(new Error('Network error')) }
+    }));
+    await expect(refineTag('melancholic', 'jazz')).rejects.toThrow('Network error');
+  });
+
+  it('throws when lastfm_tag is empty string', async () => {
+    Anthropic.mockImplementation(() => ({
+      messages: { create: jest.fn().mockResolvedValue({ content: [{ text: '{"lastfm_tag":""}' }] }) }
+    }));
+    await expect(refineTag('melancholic', 'jazz')).rejects.toThrow('invalid or empty lastfm_tag');
+  });
 });
