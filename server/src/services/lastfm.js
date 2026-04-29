@@ -31,14 +31,18 @@ async function fetchTagTracks(tag) {
   }));
 }
 
-async function getTracksByTag(tag) {
+const MIN_TRACKS = 5;
+
+async function getTracksByTag(tag, fallbackTag) {
   let tracks = await fetchTagTracks(tag);
-  if (tracks.length > 0) return tracks;
+  if (tracks.length >= MIN_TRACKS) return tracks;
 
-  const fallback = FALLBACK_TAGS[tag];
-  if (!fallback) throw new Error('NO_TRACKS');
+  const next = fallbackTag || FALLBACK_TAGS[tag];
+  if (next && next !== tag) {
+    const fallbackTracks = await fetchTagTracks(next);
+    if (fallbackTracks.length > tracks.length) tracks = fallbackTracks;
+  }
 
-  tracks = await fetchTagTracks(fallback);
   if (tracks.length === 0) throw new Error('NO_TRACKS');
   return tracks;
 }

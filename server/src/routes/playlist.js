@@ -4,12 +4,12 @@ const { getTracksByTag } = require('../services/lastfm');
 const router = express.Router();
 
 router.get('/', async (req, res, next) => {
-  const { tag } = req.query;
+  const { tag, fallbackTag } = req.query;
   if (!tag || typeof tag !== 'string' || !tag.trim()) {
     return res.status(400).json({ error: 'tag query parameter is required' });
   }
   try {
-    const tracks = await getTracksByTag(tag.trim());
+    const tracks = await getTracksByTag(tag.trim(), fallbackTag?.trim() || undefined);
     res.json({ tracks });
   } catch (err) {
     if (err.message === 'NO_TRACKS') {

@@ -9,7 +9,7 @@ export function usePlaylist() {
   const [error, setError] = useState(null)
   const abortRef = useRef(null)
 
-  const fetchPlaylist = useCallback(async (tag) => {
+  const fetchPlaylist = useCallback(async (tag, fallbackTag) => {
     if (abortRef.current) abortRef.current.abort()
     const controller = new AbortController()
     abortRef.current = controller
@@ -20,7 +20,9 @@ export function usePlaylist() {
     setTracks([])
 
     try {
-      const res = await fetch(`${API_URL}/api/playlist?tag=${encodeURIComponent(tag)}`, {
+      const params = new URLSearchParams({ tag })
+      if (fallbackTag && fallbackTag !== tag) params.set('fallbackTag', fallbackTag)
+      const res = await fetch(`${API_URL}/api/playlist?${params}`, {
         signal: controller.signal,
       })
       clearTimeout(timeoutId)

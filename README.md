@@ -6,7 +6,8 @@ A mood-based playlist curator. Type how you're feeling — VibeList interprets y
 
 1. Type how you're feeling in your own words
 2. VibeList reads your mood and shifts the background gradient to match
-3. A curated playlist appears based on your emotional state
+3. Pick a genre to refine the vibe (or skip to use the default mood tag)
+4. A curated playlist appears based on your emotional state and chosen genre
 
 ## Tech stack
 
@@ -25,7 +26,7 @@ vibelist/
 │   ├── hooks/            # useMoodAnalysis, usePlaylist
 │   └── utils/            # Gradient mapping
 ├── server/               # Express API
-│   ├── src/routes/       # /api/analyze, /api/playlist
+│   ├── src/routes/       # /api/analyze, /api/playlist, /api/refine-tag
 │   └── src/services/     # AI + Last.fm integrations
 └── test/                 # Frontend tests (Vitest)
 ```

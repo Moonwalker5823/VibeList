@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { useMoodAnalysis } from './hooks/useMoodAnalysis'
 import { usePlaylist } from './hooks/usePlaylist'
+import { useGenreRefine } from './hooks/useGenreRefine'
+import { GenreSelect } from './components/GenreSelect'
 import { getGradient } from './utils/gradients'
 import { MoodInput } from './components/MoodInput'
 import { MoodConfirmation } from './components/MoodConfirmation'
@@ -45,6 +47,10 @@ export default function App() {
     status: playlistStatus, tracks, error: playlistError,
     fetchPlaylist, reset: resetPlaylist
   } = usePlaylist()
+  const {
+    state: genreState, refinedTag, error: genreError,
+    refine, skip: skipGenre, reset: resetGenre,
+  } = useGenreRefine()
 
   const gradientConfig = moodResult?.mood_category
     ? getGradient(moodResult.mood_category)
@@ -56,22 +62,37 @@ export default function App() {
     transition: 'background 1.2s ease',
   }
 
+  // No genre suggestions: fetch playlist immediately after mood analysis
   useEffect(() => {
-    if (moodResult && !moodResult.needs_clarification) {
+    if (moodResult && !moodResult.needs_clarification && !moodResult.genre_suggestions?.length) {
       fetchPlaylist(moodResult.lastfm_tag)
     }
-  }, [moodResult])
+  }, [moodResult, fetchPlaylist])
+
+  // After genre step completes (select or skip): fetch with refined or original tag
+  useEffect(() => {
+    if (genreState === 'done' && moodResult) {
+      const tag = refinedTag ?? moodResult.lastfm_tag
+      const fallback = refinedTag ? moodResult.lastfm_tag : undefined
+      fetchPlaylist(tag, fallback)
+    }
+  }, [genreState, refinedTag, moodResult, fetchPlaylist])
 
   function handleReset() {
     resetMood()
     resetPlaylist()
+    resetGenre()
   }
 
   const { textLight } = gradientConfig
   const isAnalyzing = state === 'analyzing'
-  const showResults = moodResult && !moodResult.needs_clarification
   const showClarification = moodResult?.needs_clarification === true
-  const idle = !showResults && state !== 'error'
+  const showGenreSelect = moodResult && !moodResult.needs_clarification &&
+    moodResult.genre_suggestions?.length > 0 &&
+    (genreState === 'idle' || genreState === 'refining' || genreState === 'error')
+  const showResults = moodResult && !moodResult.needs_clarification &&
+    (!moodResult.genre_suggestions?.length || genreState === 'done')
+  const idle = !showResults && !showGenreSelect && state !== 'error'
 
   return (
     <div className="min-h-screen w-full flex flex-col overflow-x-hidden px-4 sm:px-6 lg:px-8" style={bgStyle}>
@@ -81,7 +102,7 @@ export default function App() {
       </header>
 
       <div className={`flex flex-col items-center gap-6 w-full ${idle ? 'flex-1 justify-center' : 'mt-8'}`}>
-        {!showResults && (
+        {!showResults && !showGenreSelect && (
           <div className="w-full max-w-xl">
             <MoodInput
               onSubmit={analyze}
@@ -90,6 +111,25 @@ export default function App() {
               clarificationQuestion={showClarification ? moodResult.clarification_question : undefined}
             />
           </div>
+        )}
+
+        {showGenreSelect && (
+          <>
+            <MoodConfirmation confirmation={moodResult.confirmation} textLight={textLight} />
+            <GenreSelect
+              genres={moodResult.genre_suggestions}
+              textLight={textLight}
+              onSelect={(genre) => refine(moodResult.mood, genre)}
+              onSkip={skipGenre}
+              isLoading={genreState === 'refining'}
+            />
+            {genreState === 'error' && (
+              <p className={`text-sm text-center ${textLight ? 'text-white/65' : 'text-gray-500'}`}>
+                {genreError}{' '}
+                <button onClick={skipGenre} className="underline font-medium">Skip instead?</button>
+              </p>
+            )}
+          </>
         )}
 
         {state === 'error' && (
