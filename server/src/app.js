@@ -14,6 +14,7 @@ app.use(express.json());
 
 app.use('/api/analyze', require('./routes/analyze'));
 app.use('/api/playlist', require('./routes/playlist'));
+app.use('/api/refine-tag', require('./routes/refine-tag'));
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
