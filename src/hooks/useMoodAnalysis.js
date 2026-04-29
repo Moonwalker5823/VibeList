@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 const TIMEOUT_MS = 15000
 
 export function useMoodAnalysis() {
@@ -20,7 +19,7 @@ export function useMoodAnalysis() {
     setMoodResult(null)
 
     try {
-      const res = await fetch(`${API_URL}/api/analyze`, {
+      const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),

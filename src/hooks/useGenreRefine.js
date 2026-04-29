@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 const TIMEOUT_MS = 15000
 
 export function useGenreRefine() {
@@ -22,7 +21,7 @@ export function useGenreRefine() {
     setRefinedTag(null)
 
     try {
-      const res = await fetch(`${API_URL}/api/refine-tag`, {
+      const res = await fetch('/api/refine-tag', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mood, genre }),

@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 const TIMEOUT_MS = 15000
 
 export function usePlaylist() {
@@ -22,7 +21,7 @@ export function usePlaylist() {
     try {
       const params = new URLSearchParams({ tag })
       if (fallbackTag && fallbackTag !== tag) params.set('fallbackTag', fallbackTag)
-      const res = await fetch(`${API_URL}/api/playlist?${params}`, {
+      const res = await fetch(`/api/playlist?${params}`, {
         signal: controller.signal,
       })
       clearTimeout(timeoutId)
