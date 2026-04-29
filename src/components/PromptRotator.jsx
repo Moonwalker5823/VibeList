@@ -26,7 +26,7 @@ export function PromptRotator({ prompts, textLight }) {
   return (
     <div className="flex items-center justify-center gap-3 min-h-[2rem]">
       <p
-        className={`text-lg italic transition-opacity duration-300 ${textColor}`}
+        className={`text-base sm:text-lg italic transition-opacity duration-300 text-center ${textColor}`}
         style={{ opacity: visible ? 1 : 0 }}
       >
         {prompts[index]}

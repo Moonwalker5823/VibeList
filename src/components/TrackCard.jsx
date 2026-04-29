@@ -34,7 +34,7 @@ export function TrackCard({ track, textLight }) {
           data-testid="art-placeholder"
           className={`w-full aspect-square bg-gradient-to-br ${gradient} flex items-center justify-center`}
         >
-          <span className="text-white text-5xl font-bold opacity-90 select-none">{initial}</span>
+          <span className="text-white text-4xl font-bold opacity-90 select-none">{initial}</span>
         </div>
       )}
       <div className="p-4 flex flex-col gap-1 flex-1">
@@ -44,7 +44,7 @@ export function TrackCard({ track, textLight }) {
           href={track.url}
           target="_blank"
           rel="noopener noreferrer"
-          className={`mt-auto pt-3 text-xs font-medium transition-colors ${linkColor}`}
+          className={`mt-auto pt-3 min-h-[44px] flex items-end text-xs font-medium transition-colors ${linkColor}`}
         >
           Listen →
         </a>

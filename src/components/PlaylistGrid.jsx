@@ -15,10 +15,12 @@ export function PlaylistGrid({ status, tracks, textLight, error }) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-      {tracks.map((track, i) => (
-        <TrackCard key={`${track.artist}-${track.name}-${i}`} track={track} textLight={textLight} />
-      ))}
+    <div className="overflow-y-auto max-h-[70vh] w-full [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        {tracks.map((track, i) => (
+          <TrackCard key={`${track.artist}-${track.name}-${i}`} track={track} textLight={textLight} />
+        ))}
+      </div>
     </div>
   )
 }

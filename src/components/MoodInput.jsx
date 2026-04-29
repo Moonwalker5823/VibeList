@@ -6,7 +6,7 @@ export function MoodInput({ onSubmit, isLoading, textLight, clarificationQuestio
   const textColor = textLight ? 'text-white placeholder-white/50' : 'text-gray-900 placeholder-gray-400'
   const borderColor = textLight ? 'border-white/30 focus:border-white/60' : 'border-gray-300 focus:border-gray-500'
   const bgColor = textLight ? 'bg-white/10' : 'bg-black/10'
-  const btnBase = 'self-end px-6 py-2.5 rounded-full font-semibold text-sm transition-all'
+  const btnBase = 'self-end px-6 py-3 min-h-[44px] rounded-full font-semibold text-sm transition-all'
   const btnColor = textLight
     ? 'bg-white text-gray-900 hover:bg-white/90 disabled:bg-white/25 disabled:cursor-not-allowed'
     : 'bg-gray-900 text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed'
@@ -26,7 +26,7 @@ export function MoodInput({ onSubmit, isLoading, textLight, clarificationQuestio
         disabled={isLoading}
         placeholder={clarificationQuestion || 'How are you feeling right now?'}
         rows={3}
-        className={`w-full rounded-xl p-4 text-base resize-none border outline-none transition-colors ${textColor} ${borderColor} ${bgColor}`}
+        className={`w-full rounded-xl p-3 sm:p-4 text-sm sm:text-base resize-none border outline-none transition-colors ${textColor} ${borderColor} ${bgColor}`}
       />
       <button
         type="submit"

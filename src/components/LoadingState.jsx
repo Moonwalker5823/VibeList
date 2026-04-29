@@ -1,7 +1,8 @@
 export function LoadingState() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-      {Array.from({ length: 10 }).map((_, i) => (
+    <div className="overflow-y-auto max-h-[70vh] w-full [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      {Array.from({ length: 6 }).map((_, i) => (
         <div key={i} data-testid="skeleton-card" className="rounded-2xl overflow-hidden bg-white/10 animate-pulse">
           <div className="w-full aspect-square bg-white/10" />
           <div className="p-4 flex flex-col gap-2">
@@ -11,6 +12,7 @@ export function LoadingState() {
           </div>
         </div>
       ))}
+    </div>
     </div>
   )
 }
