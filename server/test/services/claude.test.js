@@ -12,6 +12,7 @@ const CLEAR_MOOD_RESPONSE = {
       mood_category: 'sad',
       confirmation: "It sounds like you're carrying something heavy.",
       lastfm_tag: 'sad',
+      genre_suggestions: ['indie folk', 'post-rock', 'classical'],
       gradient: ['#141E30', '#243B55'],
       needs_clarification: false,
       prompts: [
@@ -48,6 +49,8 @@ describe('analyzeMood', () => {
     expect(Array.isArray(result.gradient)).toBe(true);
     expect(result.gradient).toHaveLength(2);
     expect(typeof result.confirmation).toBe('string');
+    expect(Array.isArray(result.genre_suggestions)).toBe(true);
+    expect(result.genre_suggestions.every(g => typeof g === 'string' && g.length > 0)).toBe(true);
   });
 
   it('returns needs_clarification when mood is ambiguous', async () => {
@@ -57,6 +60,7 @@ describe('analyzeMood', () => {
     const result = await analyzeMood('eh');
     expect(result.needs_clarification).toBe(true);
     expect(typeof result.clarification_question).toBe('string');
+    expect(result.genre_suggestions).toBeUndefined();
   });
 
   it('throws when Claude returns malformed JSON', async () => {
@@ -79,4 +83,5 @@ describe('analyzeMood', () => {
     }));
     await expect(analyzeMood('hello')).rejects.toThrow('Unexpected response shape');
   });
+
 });

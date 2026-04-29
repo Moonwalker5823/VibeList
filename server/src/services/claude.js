@@ -4,12 +4,13 @@ const MODEL = 'claude-sonnet-4-6';
 
 const SYSTEM_PROMPT = `You are a mood analyst for a music app. Given text describing how someone feels, return ONLY a raw JSON object — no markdown, no code fences, no explanation.
 
-If the mood is clear, return:
+If the mood is clear, return exactly 3 genres in genre_suggestions:
 {
   "mood": "<specific mood word>",
   "mood_category": "<one of: happy, euphoric, sad, heartbroken, melancholic, nostalgic, energetic, triumphant, peaceful, calm, angry, frustrated, anxious, nervous, focused, determined>",
   "confirmation": "<1-2 empathetic sentences acknowledging their mood>",
   "lastfm_tag": "<last.fm music tag that fits this mood>",
+  "genre_suggestions": ["<genre 1 that complements this mood>", "<genre 2>", "<genre 3>"],
   "gradient": ["#hex1", "#hex2"],
   "needs_clarification": false,
   "prompts": ["<5 short phrases under 10 words each that resonate with this emotional state>"]
