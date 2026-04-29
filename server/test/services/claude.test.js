@@ -1,0 +1,82 @@
+jest.mock('@anthropic-ai/sdk');
+const Anthropic = require('@anthropic-ai/sdk');
+
+process.env.ANTHROPIC_API_KEY = 'test-key';
+
+const { analyzeMood } = require('../../src/services/claude');
+
+const CLEAR_MOOD_RESPONSE = {
+  content: [{
+    text: JSON.stringify({
+      mood: 'sad',
+      mood_category: 'sad',
+      confirmation: "It sounds like you're carrying something heavy.",
+      lastfm_tag: 'sad',
+      gradient: ['#141E30', '#243B55'],
+      needs_clarification: false,
+      prompts: [
+        "It's okay to sit with this feeling.",
+        "Some days the music just gets it.",
+        "You don't have to be okay right now.",
+        "There's no timeline on feeling better.",
+        "Let it out. That's what this is for."
+      ]
+    })
+  }]
+};
+
+const CLARIFICATION_RESPONSE = {
+  content: [{
+    text: JSON.stringify({
+      needs_clarification: true,
+      clarification_question: "Can you tell me a bit more about what's going on?"
+    })
+  }]
+};
+
+describe('analyzeMood', () => {
+  it('returns parsed mood result for clear mood text', async () => {
+    Anthropic.mockImplementation(() => ({
+      messages: { create: jest.fn().mockResolvedValue(CLEAR_MOOD_RESPONSE) }
+    }));
+    const result = await analyzeMood('I feel really sad today');
+    expect(result.needs_clarification).toBe(false);
+    expect(result.mood_category).toBe('sad');
+    expect(result.lastfm_tag).toBe('sad');
+    expect(Array.isArray(result.prompts)).toBe(true);
+    expect(result.prompts).toHaveLength(5);
+    expect(Array.isArray(result.gradient)).toBe(true);
+    expect(result.gradient).toHaveLength(2);
+    expect(typeof result.confirmation).toBe('string');
+  });
+
+  it('returns needs_clarification when mood is ambiguous', async () => {
+    Anthropic.mockImplementation(() => ({
+      messages: { create: jest.fn().mockResolvedValue(CLARIFICATION_RESPONSE) }
+    }));
+    const result = await analyzeMood('eh');
+    expect(result.needs_clarification).toBe(true);
+    expect(typeof result.clarification_question).toBe('string');
+  });
+
+  it('throws when Claude returns malformed JSON', async () => {
+    Anthropic.mockImplementation(() => ({
+      messages: { create: jest.fn().mockResolvedValue({ content: [{ text: 'not json' }] }) }
+    }));
+    await expect(analyzeMood('hello')).rejects.toThrow();
+  });
+
+  it('throws when Anthropic SDK rejects', async () => {
+    Anthropic.mockImplementation(() => ({
+      messages: { create: jest.fn().mockRejectedValue(new Error('Network error')) }
+    }));
+    await expect(analyzeMood('hello')).rejects.toThrow('Network error');
+  });
+
+  it('throws on empty content response', async () => {
+    Anthropic.mockImplementation(() => ({
+      messages: { create: jest.fn().mockResolvedValue({ content: [] }) }
+    }));
+    await expect(analyzeMood('hello')).rejects.toThrow('Unexpected response shape');
+  });
+});

@@ -1,0 +1,22 @@
+node_modules
+dist
+dist-ssr
+*.local
+*.log
+
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+# API keys
+server/.env
+.env.local
+
+# Internal docs
+docs/
+.claude/
+
+# Server dependencies tracked separately
+server/node_modules
+server/package-lock.json
